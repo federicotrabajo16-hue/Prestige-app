@@ -150,13 +150,13 @@ Una **aplicación web empresarial completa** desarrollada específicamente para 
 ## 💵 **Valor de Mercado**
 
 ### **Inversión de Desarrollo**
-- **Valor estimado:** $75,000 - $100,000 USD
+- **Valor estimado:** $40,000 - $60,000 USD
 - **Tiempo de desarrollo:** 6-12 meses
 - **Complejidad técnica:** Alta
 - **Especialización:** Sector estética
 
 ### **Retorno de Inversión (ROI)**
-- **Ahorro anual estimado:** $15,000 - $25,000
+- **Ahorro anual estimado:** $10,000 - $20,000
 - **Incremento de ventas:** 20-30%
 - **Reducción de costos operativos:** 40-50%
 - **ROI proyectado:** 200-300% en 2 años
@@ -277,7 +277,8 @@ Una **aplicación web empresarial completa** desarrollada específicamente para 
 
 ---
 
-## 📞 **Demostración y Contacto** : +543804921530 - Whatsapp - federico.trabajo16@gmail.com
+## 📞 **Demostración y Contacto** : 
++543804921530 - Whatsapp - federico.trabajo16@gmail.com
 
 **¿Interesado en una demostración personalizada?**
 
@@ -303,4 +304,5 @@ Una **aplicación web empresarial completa** desarrollada específicamente para 
 ## 📝 **Nota Técnica**
 
 *Este repositorio contiene únicamente la versión compilada de la aplicación web exportada desde Godot Engine. El código fuente del proyecto (.gd, .tscn, etc.) está protegido en un repositorio privado. Los archivos presentes son necesarios para la ejecución de la aplicación en el navegador web.*
+
 
