@@ -4,7 +4,7 @@
 
 ## 🌐 **Ver la Aplicación en Vivo**
 
-**🔗 [https://federicotrabajo16-hue.github.io/prestige-webapp/](https://federicotrabajo16-hue.github.io/Prestige-app/)**
+**🔗 [https://federicotrabajo16-hue.github.io/Prestige-app/](https://federicotrabajo16-hue.github.io/Prestige-app/)**
 
 
 
@@ -304,6 +304,7 @@ Una **aplicación web empresarial completa** desarrollada específicamente para 
 ## 📝 **Nota Técnica**
 
 *Este repositorio contiene únicamente la versión compilada de la aplicación web exportada desde Godot Engine. El código fuente del proyecto (.gd, .tscn, etc.) está protegido en un repositorio privado. Los archivos presentes son necesarios para la ejecución de la aplicación en el navegador web.*
+
 
 
 
