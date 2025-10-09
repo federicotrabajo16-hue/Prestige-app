@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<title>Prestige Beauty Studio</title>
+	
+	<style>
+		*:focus,
+		*:active {
+			outline: none;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		body {
+			touch-action: none;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			overflow: hidden;
+			display: block;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: #1a1a1a;
+			font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+		}
+
+		#canvas {
+			display: block;
+			margin: 0;
+			color: white;
+			touch-action: none;
+		}
+
+		#canvas:focus {
+			outline: none;
+		}
+
+		.godot {
+			font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+			color: #e0e0e0;
+			background-color: #3b3943;
+			background-image: linear-gradient(to bottom, #403e48, #35333c);
+			border: 1px solid #45434e;
+			box-shadow: 0 0 1px 1px #2f2d35;
+		}
+
+		/* Virtual Keyboard Support */
+		#virtual-keyboard-input {
+			position: absolute;
+			left: -9999px;
+			width: 1px;
+			height: 1px;
+			opacity: 0;
+			font-size: 16px; /* Prevents zoom on iOS */
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			user-select: text;
+		}
+
+		#loading-container {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			background-color: #1a1a1a;
+			z-index: 9999;
+		}
+
+		#loading-logo {
+			width: 150px;
+			height: 150px;
+			margin-bottom: 30px;
+			animation: pulse 2s ease-in-out infinite;
+		}
+
+		@keyframes pulse {
+			0%, 100% { opacity: 0.6; transform: scale(1); }
+			50% { opacity: 1; transform: scale(1.05); }
+		}
+
+		#loading-text {
+			color: #d4af37;
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 20px;
+			text-align: center;
+		}
+
+		#loading-progress {
+			width: 300px;
+			height: 6px;
+			background-color: #2a2a2a;
+			border-radius: 3px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		#loading-bar {
+			height: 100%;
+			background: linear-gradient(90deg, #d4af37, #f4d03f);
+			border-radius: 3px;
+			width: 0%;
+			transition: width 0.3s ease;
+		}
+
+		#status {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			visibility: hidden;
+		}
+
+		#status-progress {
+			width: 366px;
+			height: 7px;
+			background-color: #38363A;
+			border: 1px solid #444246;
+			padding: 1px;
+			box-shadow: 0 0 2px 1px #1B1C22;
+			border-radius: 2px;
+			visibility: visible;
+		}
+
+		@media only screen and (orientation:portrait) {
+			#status-progress {
+				width: 61.8%;
+			}
+		}
+
+		#status-progress-inner {
+			height: 100%;
+			width: 0%;
+			box-sizing: border-box;
+			transition: width 0.5s linear;
+			background-color: #d4af37;
+			border: 1px solid #d4af37;
+			box-shadow: 0 0 1px 1px #d4af37;
+			border-radius: 3px;
+		}
+
+		#status-indeterminate {
+			visibility: visible;
+			position: relative;
+		}
+
+		#status-indeterminate > div {
+			width: 4.5px;
+			height: 0;
+			border-style: solid;
+			border-width: 9px 3px 0 3px;
+			border-color: #d4af37 transparent transparent transparent;
+			transform-origin: center 21px;
+			position: absolute;
+		}
+
+		#status-indeterminate > div:nth-child(1) { transform: rotate( 22.5deg); }
+		#status-indeterminate > div:nth-child(2) { transform: rotate( 67.5deg); }
+		#status-indeterminate > div:nth-child(3) { transform: rotate(112.5deg); }
+		#status-indeterminate > div:nth-child(4) { transform: rotate(157.5deg); }
+		#status-indeterminate > div:nth-child(5) { transform: rotate(202.5deg); }
+		#status-indeterminate > div:nth-child(6) { transform: rotate(247.5deg); }
+		#status-indeterminate > div:nth-child(7) { transform: rotate(292.5deg); }
+		#status-indeterminate > div:nth-child(8) { transform: rotate(337.5deg); }
+
+		#status-notice {
+			margin: 0 100px;
+			text-align: center;
+			visibility: visible;
+			padding: 4px 6px;
+			visibility: visible;
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			#loading-logo {
+				width: 100px;
+				height: 100px;
+			}
+			#loading-text {
+				font-size: 16px;
+			}
+			#loading-progress {
+				width: 80%;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!-- Loading Screen -->
+	<div id="loading-container">
+		<div id="loading-logo">
+			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="50" cy="50" r="40" fill="none" stroke="#d4af37" stroke-width="3"/>
+				<text x="50" y="60" font-family="Arial" font-size="30" fill="#d4af37" text-anchor="middle">P</text>
+			</svg>
+		</div>
+		<div id="loading-text">Cargando Prestige Beauty Studio...</div>
+		<div id="loading-progress">
+			<div id="loading-bar"></div>
+		</div>
+	</div>
+
+	<canvas id="canvas">
+		HTML5 canvas appears to be unsupported in the current browser.<br />
+		Please try updating or use a different browser.
+	</canvas>
+
+	<!-- Hidden input for virtual keyboard -->
+	<input type="text" id="virtual-keyboard-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+
+	<div id="status">
+		<div id="status-progress" style="display: none;" oncontextmenu="event.preventDefault();">
+			<div id="status-progress-inner"></div>
+		</div>
+		<div id="status-indeterminate" style="display: none;" oncontextmenu="event.preventDefault();">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div id="status-notice" class="godot" style="display: none;"></div>
+	</div>
+
+	<script type="text/javascript">
+		var engine = null;
+		var mobileKeyboardInput = document.getElementById('virtual-keyboard-input');
+		var isInputActive = false;
+
+		// Mobile keyboard helper
+		var MobileKeyboard = {
+			isActive: false,
+			currentValue: '',
+			
+			show: function() {
+				if (!this.isActive) {
+					this.isActive = true;
+					mobileKeyboardInput.value = this.currentValue;
+					mobileKeyboardInput.style.left = '0';
+					mobileKeyboardInput.style.opacity = '0.01'; // Slightly visible for debugging
+					mobileKeyboardInput.focus();
+					console.log('📱 Teclado móvil activado');
+				}
+			},
+			
+			hide: function() {
+				if (this.isActive) {
+					this.isActive = false;
+					mobileKeyboardInput.style.left = '-9999px';
+					mobileKeyboardInput.style.opacity = '0';
+					mobileKeyboardInput.blur();
+					console.log('📱 Teclado móvil desactivado');
+				}
+			},
+			
+			getValue: function() {
+				return mobileKeyboardInput.value;
+			},
+			
+			setValue: function(value) {
+				this.currentValue = value;
+				mobileKeyboardInput.value = value;
+			}
+		};
+
+		// Setup mobile keyboard events
+		mobileKeyboardInput.addEventListener('input', function(e) {
+			if (MobileKeyboard.isActive) {
+				MobileKeyboard.currentValue = e.target.value;
+				console.log('📝 Input changed:', e.target.value);
+			}
+		});
+
+		mobileKeyboardInput.addEventListener('blur', function() {
+			// Don't hide immediately, might be intentional focus change
+			setTimeout(function() {
+				if (MobileKeyboard.isActive && document.activeElement !== mobileKeyboardInput) {
+					console.log('⚠️ Keyboard lost focus');
+				}
+			}, 100);
+		});
+
+		// Expose to Godot
+		window.GodotMobileKeyboard = MobileKeyboard;
+
+		// Engine configuration
+		var setStatusMode;
+		var setStatusNotice;
+		var animateStatusIndeterminate;
+		var hideLoadingScreen;
+
+		(function() {
+			var statusProgress = document.getElementById('status-progress');
+			var statusProgressInner = document.getElementById('status-progress-inner');
+			var statusIndeterminate = document.getElementById('status-indeterminate');
+			var statusNotice = document.getElementById('status-notice');
+			var loadingContainer = document.getElementById('loading-container');
+			var loadingBar = document.getElementById('loading-bar');
+
+			var initializing = true;
+			var statusMode = 'hidden';
+
+			var animationCallbacks = [];
+			function animate(time) {
+				animationCallbacks.forEach(callback => callback(time));
+				requestAnimationFrame(animate);
+			}
+			requestAnimationFrame(animate);
+
+			function adjustCanvasDimensions() {
+				var canvas = document.getElementById('canvas');
+				var canvasContainer = canvas.parentElement;
+				canvas.width = canvasContainer.clientWidth;
+				canvas.height = canvasContainer.clientHeight;
+			}
+			animationCallbacks.push(adjustCanvasDimensions);
+			adjustCanvasDimensions();
+
+			setStatusMode = function setStatusMode(mode) {
+				if (statusMode === mode || !initializing)
+					return;
+				[statusProgress, statusIndeterminate, statusNotice].forEach(elem => {
+					elem.style.display = 'none';
+				});
+				animationCallbacks = animationCallbacks.filter(function(value) {
+					return (value != animateStatusIndeterminate);
+				});
+				switch (mode) {
+					case 'progress':
+						statusProgress.style.display = 'block';
+						break;
+					case 'indeterminate':
+						statusIndeterminate.style.display = 'block';
+						animationCallbacks.push(animateStatusIndeterminate);
+						break;
+					case 'notice':
+						statusNotice.style.display = 'block';
+						break;
+					case 'hidden':
+						break;
+					default:
+						throw new Error('Invalid status mode');
+				}
+				statusMode = mode;
+			};
+
+			function animateStatusIndeterminate(ms) {
+				var i = Math.floor(ms / INDETERMINATE_STATUS_STEP_MS % 8);
+				if (statusIndeterminate.children[i].style.borderTopColor == '') {
+					Array.prototype.slice.call(statusIndeterminate.children).forEach(child => {
+						child.style.borderTopColor = '';
+					});
+					statusIndeterminate.children[i].style.borderTopColor = '#d4af37';
+				}
+			}
+
+			setStatusNotice = function setStatusNotice(text) {
+				while (statusNotice.lastChild) {
+					statusNotice.removeChild(statusNotice.lastChild);
+				}
+				var lines = text.split('\n');
+				lines.forEach((line) => {
+					statusNotice.appendChild(document.createTextNode(line));
+					statusNotice.appendChild(document.createElement('br'));
+				});
+			};
+
+			hideLoadingScreen = function() {
+				initializing = false;
+				setStatusMode('hidden');
+				loadingContainer.style.opacity = '0';
+				loadingContainer.style.transition = 'opacity 0.5s ease';
+				setTimeout(function() {
+					loadingContainer.style.display = 'none';
+				}, 500);
+			};
+		})();
+
+		// Engine startup
+		var EXECUTABLE_NAME = '$GODOT_BASENAME';
+		var MAIN_PACK = '$GODOT_BASENAME' + '.pck';
+		var EXTRA_ARGS = JSON.parse('$GODOT_ARGS');
+		var INDETERMINATE_STATUS_STEP_MS = 100;
+
+		var engine = new Engine(EXTRA_ARGS);
+
+		engine.setProgressFunc((current, total) => {
+			if (total > 0) {
+				var percent = Math.round((current / total) * 100);
+				document.getElementById('loading-bar').style.width = percent + '%';
+				statusProgressInner.style.width = percent + '%';
+				setStatusMode('progress');
+				if (current === total) {
+					setTimeout(hideLoadingScreen, 500);
+				}
+			} else {
+				setStatusMode('indeterminate');
+			}
+		});
+
+		engine.setPrintFunc(function(text) {
+			console.log(text);
+		});
+
+		engine.setStderrFunc(function(text) {
+			console.error(text);
+		});
+
+		var displayFailureNotice = function(err) {
+			var msg = err.message || err;
+			console.error(msg);
+			setStatusNotice(msg);
+			setStatusMode('notice');
+			initializing = false;
+		};
+
+		// Start the engine
+		engine.startGame({
+			'executable': EXECUTABLE_NAME,
+			'mainPack': MAIN_PACK,
+			'canvas': document.getElementById('canvas'),
+			'canvasResizePolicy': $GODOT_CANVAS_RESIZE_POLICY,
+			'onExit': function() {
+				engine = null;
+			}
+		}).then(function() {
+			console.log('✅ Godot Engine iniciado correctamente');
+			console.log('📱 Soporte de teclado móvil: ACTIVADO');
+			hideLoadingScreen();
+		}, displayFailureNotice);
+
+		// Prevent context menu on canvas
+		document.getElementById('canvas').addEventListener('contextmenu', function(e) {
+			e.preventDefault();
+		}, false);
+
+		// Prevent default touch behaviors
+		document.body.addEventListener('touchstart', function(e) {
+			if (e.target == document.getElementById('canvas')) {
+				e.preventDefault();
+			}
+		}, { passive: false });
+
+		document.body.addEventListener('touchmove', function(e) {
+			if (e.target == document.getElementById('canvas')) {
+				e.preventDefault();
+			}
+		}, { passive: false });
+	</script>
+	<script type="text/javascript" src="$GODOT_BASENAME.js"></script>
+</body>
+</html>
+
+
